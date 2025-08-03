@@ -1,7 +1,7 @@
 import type { IUser } from '@rocket.chat/core-typings';
 import { Box } from '@rocket.chat/fuselage';
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { IGame } from './GameCenter';
@@ -22,8 +22,18 @@ const GameCenterInvitePlayersModal = ({ game, onClose }: IGameCenterInvitePlayer
 	const { t } = useTranslation();
 	const [users, setUsers] = useState<Array<Username>>([]);
 	const { name } = game;
+	const trackerComputationRef = useRef<Tracker.Computation | null>(null);
 
 	const openedRoom = useOpenedRoom();
+
+	// Cleanup tracker computation on unmount
+	useEffect(() => {
+		return () => {
+			if (trackerComputationRef.current && !trackerComputationRef.current.stopped) {
+				trackerComputationRef.current.stop();
+			}
+		};
+	}, []);
 
 	const sendInvite = async () => {
 		const privateGroupName = `${name.replace(/\s/g, '-')}-${Random.id(10)}`;
@@ -33,7 +43,7 @@ const GameCenterInvitePlayersModal = ({ game, onClose }: IGameCenterInvitePlayer
 
 			roomCoordinator.openRouteLink(result.t, result);
 
-			Tracker.autorun((c) => {
+			trackerComputationRef.current = Tracker.autorun((c) => {
 				if (openedRoom !== result.rid) {
 					return;
 				}
@@ -45,6 +55,7 @@ const GameCenterInvitePlayersModal = ({ game, onClose }: IGameCenterInvitePlayer
 				});
 
 				c.stop();
+				trackerComputationRef.current = null;
 			});
 			onClose();
 		} catch (err) {

@@ -36,7 +36,13 @@ export const createReactiveSubscriptionFactory =
 					callbacks.delete(callback);
 
 					if (callbacks.size === 0) {
-						queueMicrotask(() => computation?.stop());
+						queueMicrotask(() => {
+							// Additional check to prevent race conditions
+							if (callbacks.size === 0 && computation && !computation.stopped) {
+								computation.stop();
+								computation = undefined;
+							}
+						});
 					}
 				};
 			},
