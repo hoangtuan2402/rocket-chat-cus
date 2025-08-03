@@ -112,7 +112,16 @@ export const UserAction = new (class {
 		const trid = extras?.tmid || rid;
 		const key = `${activityType}-${trid}`;
 
+		// Nếu đã có activity renew timeout, nghĩa là đã gọi start gần đây
 		if (activityRenews.get(key)) {
+			// Chỉ reset timeout chứ không emit lại
+			if (activityTimeouts.get(key)) {
+				clearTimeout(activityTimeouts.get(key));
+			}
+			activityTimeouts.set(
+				key,
+				setTimeout(() => this.stop(trid, activityType, extras), TIMEOUT),
+			);
 			return;
 		}
 
@@ -125,10 +134,14 @@ export const UserAction = new (class {
 		);
 
 		const activities = roomActivities.get(trid) || new Set();
+		const wasAlreadyActive = activities.has(activityType);
 		activities.add(activityType);
 		roomActivities.set(trid, activities);
 
-		void emitActivities(rid, extras);
+		// Chỉ emit khi activity chưa active trước đó
+		if (!wasAlreadyActive) {
+			void emitActivities(rid, extras);
+		}
 
 		if (activityTimeouts.get(key)) {
 			clearTimeout(activityTimeouts.get(key));
@@ -139,7 +152,6 @@ export const UserAction = new (class {
 			key,
 			setTimeout(() => this.stop(trid, activityType, extras), TIMEOUT),
 		);
-		activityTimeouts.get(key);
 	}
 
 	stop(rid: string, activityType: string, extras: IExtras): void {

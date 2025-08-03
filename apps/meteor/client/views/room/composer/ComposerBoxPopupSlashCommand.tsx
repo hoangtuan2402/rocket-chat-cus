@@ -1,5 +1,5 @@
 import { OptionColumn, OptionContent, OptionDescription, OptionInput } from '@rocket.chat/fuselage';
-import React from 'react';
+import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export type ComposerBoxPopupSlashCommandProps = {
@@ -24,4 +24,4 @@ function ComposerBoxPopupSlashCommand({ _id, description, params, disabled }: Co
 	);
 }
 
-export default ComposerBoxPopupSlashCommand;
+export default memo(ComposerBoxPopupSlashCommand);

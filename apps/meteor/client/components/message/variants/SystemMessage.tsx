@@ -27,7 +27,6 @@ import {
 	useIsSelecting,
 	useToggleSelect,
 	useIsSelectedMessage,
-	useCountSelected,
 } from '../../../views/room/MessageList/contexts/SelectedMessagesContext';
 import { useUserCard } from '../../../views/room/contexts/UserCardContext';
 import Attachments from '../content/Attachments';
@@ -55,7 +54,6 @@ const SystemMessage = ({ message, showUserAvatar, ...props }: SystemMessageProps
 	const isSelecting = useIsSelecting();
 	const toggleSelected = useToggleSelect(message._id);
 	const isSelected = useIsSelectedMessage(message._id);
-	useCountSelected();
 
 	return (
 		<MessageSystem

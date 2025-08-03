@@ -1,6 +1,6 @@
 import { isThreadMessage, type IMessage, type ISubscription } from '@rocket.chat/core-typings';
 import { Box, Bubble, MessageDivider } from '@rocket.chat/fuselage';
-import React from 'react';
+import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import RoomMessage from '../../../components/message/variants/RoomMessage';
@@ -21,7 +21,7 @@ type MessageListItemProps = {
 	subscription: ISubscription | undefined;
 	system: boolean;
 };
-export const MessageListItem = ({
+export const MessageListItem = memo(({
 	message,
 	previous,
 	showUnreadDivider,
@@ -94,4 +94,19 @@ export const MessageListItem = ({
 			{system && <SystemMessage showUserAvatar={showUserAvatar} message={message} />}
 		</>
 	);
-};
+}, (prevProps, nextProps) => {
+	return (
+		prevProps.message._id === nextProps.message._id &&
+		prevProps.message._updatedAt === nextProps.message._updatedAt &&
+		prevProps.previous?._id === nextProps.previous?._id &&
+		prevProps.showUnreadDivider === nextProps.showUnreadDivider &&
+		prevProps.sequential === nextProps.sequential &&
+		prevProps.showUserAvatar === nextProps.showUserAvatar &&
+		prevProps.visible === nextProps.visible &&
+		prevProps.subscription?.tunread === nextProps.subscription?.tunread &&
+		prevProps.subscription?.tunreadUser === nextProps.subscription?.tunreadUser &&
+		prevProps.subscription?.tunreadGroup === nextProps.subscription?.tunreadGroup &&
+		prevProps.subscription?.ignored === nextProps.subscription?.ignored &&
+		prevProps.system === nextProps.system
+	);
+});

@@ -1,7 +1,8 @@
 import type { IMessage, ISubscription } from '@rocket.chat/core-typings';
 import { useToastMessageDispatch } from '@rocket.chat/ui-contexts';
+import { debounce } from 'lodash';
 import type { ReactElement, ReactNode } from 'react';
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useMemo, useRef } from 'react';
 
 import ComposerSkeleton from './ComposerSkeleton';
 import { LegacyRoomManager } from '../../../../app/ui-utils/client';
@@ -28,6 +29,16 @@ const ComposerMessage = ({ tmid, onSend, ...props }: ComposerMessageProps): Reac
 	const chat = useChat();
 	const room = useRoom();
 	const dispatchToastMessage = useToastMessageDispatch();
+
+	const debouncedTypingRef = useRef(
+		debounce(async (chatInstance) => {
+			if (chatInstance?.composer?.text?.trim() === '') {
+				await chatInstance?.action.stop('typing');
+				return;
+			}
+			await chatInstance?.action.start('typing');
+		}, 300) // Debounce 300ms thay vì gọi mỗi keystroke
+	);
 
 	const composerProps = useMemo(
 		() => ({
@@ -64,12 +75,8 @@ const ComposerMessage = ({ tmid, onSend, ...props }: ComposerMessageProps): Reac
 					dispatchToastMessage({ type: 'error', message: error });
 				}
 			},
-			onTyping: async (): Promise<void> => {
-				if (chat?.composer?.text?.trim() === '') {
-					await chat?.action.stop('typing');
-					return;
-				}
-				await chat?.action.start('typing');
+			onTyping: (): void => {
+				debouncedTypingRef.current(chat);
 			},
 			onNavigateToPreviousMessage: () => chat?.messageEditing.toPreviousMessage(),
 			onNavigateToNextMessage: () => chat?.messageEditing.toNextMessage(),
@@ -77,7 +84,7 @@ const ComposerMessage = ({ tmid, onSend, ...props }: ComposerMessageProps): Reac
 				return chat?.flows.uploadFiles(files);
 			},
 		}),
-		[chat?.data, chat?.flows, chat?.action, chat?.composer?.text, chat?.messageEditing, dispatchToastMessage, onSend],
+		[chat, dispatchToastMessage, onSend],
 	);
 
 	const publicationReady = useReactiveValue(
