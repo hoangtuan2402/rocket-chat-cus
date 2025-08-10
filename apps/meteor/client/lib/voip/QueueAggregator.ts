@@ -130,4 +130,32 @@ export class QueueAggregator {
 			this.sessionQueueCallServingHistory.unshift(this.currentlyServing);
 		}
 	}
+
+	// Memory cleanup methods for background refresh
+	cleanupOldHistory(maxRecords = 50): void {
+		if (this.sessionQueueCallServingHistory.length > maxRecords) {
+			this.sessionQueueCallServingHistory = this.sessionQueueCallServingHistory.slice(0, maxRecords);
+		}
+	}
+
+	cleanupOldHistoryByAge(maxAgeHours = 24): void {
+		const cutoff = new Date();
+		cutoff.setHours(cutoff.getHours() - maxAgeHours);
+		
+		this.sessionQueueCallServingHistory = this.sessionQueueCallServingHistory.filter(
+			record => record.callEnded && record.callEnded > cutoff
+		);
+	}
+
+	getMemoryStats(): { historyCount: number; queueCount: number } {
+		return {
+			historyCount: this.sessionQueueCallServingHistory.length,
+			queueCount: Object.keys(this.currentQueueMembershipStatus).length,
+		};
+	}
+
+	performMemoryCleanup(): void {
+		this.cleanupOldHistory();
+		this.cleanupOldHistoryByAge();
+	}
 }
