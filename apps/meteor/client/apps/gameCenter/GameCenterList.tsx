@@ -1,7 +1,7 @@
 import { Avatar, Icon, Table, TableBody, TableCell, TableHead, TableRow } from '@rocket.chat/fuselage';
 import { useSetModal } from '@rocket.chat/ui-contexts';
 import type { ReactElement } from 'react';
-import React, { useCallback, memo } from 'react';
+import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { IGame } from './GameCenter';
@@ -29,19 +29,6 @@ const GameCenterList = ({ handleClose, handleOpenGame, games, isLoading }: IGame
 		[setModal],
 	);
 
-	const handleOpenGameCallback = useCallback(
-		(game: IGame) => () => handleOpenGame(game),
-		[handleOpenGame],
-	);
-
-	const handleInvitePlayerCallback = useCallback(
-		(game: IGame) => (e: React.MouseEvent | React.KeyboardEvent) => {
-			e.stopPropagation();
-			handleInvitePlayer(game);
-		},
-		[handleInvitePlayer],
-	);
-
 	return (
 		<div>
 			<ContextualbarHeader>
@@ -62,15 +49,21 @@ const GameCenterList = ({ handleClose, handleOpenGame, games, isLoading }: IGame
 								</TableHead>
 								<TableBody>
 									{games.map((game, key) => (
-										<TableRow key={key} action onKeyDown={handleOpenGameCallback(game)} onClick={handleOpenGameCallback(game)}>
+										<TableRow key={key} action onKeyDown={() => handleOpenGame(game)} onClick={() => handleOpenGame(game)}>
 											<TableCell>
 												<Avatar url={game.icon} /> {game.name}
 											</TableCell>
 											<TableCell>{game.description}</TableCell>
 											<TableCell>
 												<Icon
-													onKeyDown={handleInvitePlayerCallback(game)}
-													onClick={handleInvitePlayerCallback(game)}
+													onKeyDown={(e) => {
+														e.stopPropagation();
+														handleInvitePlayer(game);
+													}}
+													onClick={(e) => {
+														e.stopPropagation();
+														handleInvitePlayer(game);
+													}}
 													name='plus'
 													title={t('Apps_Game_Center_Invite_Friends')}
 												></Icon>
@@ -93,4 +86,4 @@ const GameCenterList = ({ handleClose, handleOpenGame, games, isLoading }: IGame
 	);
 };
 
-export default memo(GameCenterList);
+export default GameCenterList;

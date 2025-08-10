@@ -1,6 +1,6 @@
 import { OptionAvatar, OptionColumn, OptionContent, OptionInput } from '@rocket.chat/fuselage';
 import { UserAvatar } from '@rocket.chat/ui-avatar';
-import React, { memo } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 import ReactiveUserStatus from '../../../components/UserStatus/ReactiveUserStatus';
@@ -59,4 +59,4 @@ function ComposerBoxPopupUser({ _id, system, username, name, nickname, outside, 
 	);
 }
 
-export default memo(ComposerBoxPopupUser);
+export default ComposerBoxPopupUser;

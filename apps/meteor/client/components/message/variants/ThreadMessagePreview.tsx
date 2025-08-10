@@ -22,6 +22,7 @@ import {
 	useIsSelecting,
 	useToggleSelect,
 	useIsSelectedMessage,
+	useCountSelected,
 } from '../../../views/room/MessageList/contexts/SelectedMessagesContext';
 import { useMessageBody } from '../../../views/room/MessageList/hooks/useMessageBody';
 import { useParentMessage } from '../../../views/room/MessageList/hooks/useParentMessage';
@@ -46,6 +47,7 @@ const ThreadMessagePreview = ({ message, showUserAvatar, sequential, ...props }:
 	const isSelecting = useIsSelecting();
 	const toggleSelected = useToggleSelect(message._id);
 	const isSelected = useIsSelectedMessage(message._id);
+	useCountSelected();
 
 	const messageType = parentMessage.isSuccess ? MessageTypes.getType(parentMessage.data) : null;
 	const messageBody = useMessageBody(parentMessage.data, message.rid);

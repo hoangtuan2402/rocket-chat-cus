@@ -12,6 +12,7 @@ import {
 	useIsSelecting,
 	useToggleSelect,
 	useIsSelectedMessage,
+	useCountSelected,
 } from '../../../views/room/MessageList/contexts/SelectedMessagesContext';
 import { useJumpToMessage } from '../../../views/room/MessageList/hooks/useJumpToMessage';
 import { useUserCard } from '../../../views/room/contexts/UserCardContext';
@@ -56,6 +57,8 @@ const RoomMessage = ({
 	const selecting = useIsSelecting();
 	const toggleSelected = useToggleSelect(message._id);
 	const selected = useIsSelectedMessage(message._id);
+
+	useCountSelected();
 
 	const messageRef = useJumpToMessage(message._id);
 
@@ -112,17 +115,4 @@ const RoomMessage = ({
 	);
 };
 
-export default memo(RoomMessage, (prevProps, nextProps) => {
-	return (
-		prevProps.message._id === nextProps.message._id &&
-		prevProps.message._updatedAt === nextProps.message._updatedAt &&
-		prevProps.sequential === nextProps.sequential &&
-		prevProps.unread === nextProps.unread &&
-		prevProps.mention === nextProps.mention &&
-		prevProps.all === nextProps.all &&
-		prevProps.showUserAvatar === nextProps.showUserAvatar &&
-		prevProps.ignoredUser === nextProps.ignoredUser &&
-		prevProps.searchText === nextProps.searchText &&
-		prevProps.context === nextProps.context
-	);
-});
+export default memo(RoomMessage);
